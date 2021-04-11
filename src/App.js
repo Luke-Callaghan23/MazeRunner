@@ -1,25 +1,41 @@
-import logo from './logo.svg';
+/* eslint-disable import/no-anonymous-default-export */
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import Options from './components/options/Options';
+import MazeRunner from './components/mazeRunner/MazeRunner';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export default () => {
+    const [ numRows, setNumRows ] = useState('');
+    const [ numCols, setNumCols ] = useState('');
+    
+    const [ generated, setGenerated ] = useState(false);
 
-export default App;
+
+    useEffect(() => {
+        console.log(numRows, numCols);
+    })
+
+    return (
+        <>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+            
+            {
+                generated &&
+                <MazeRunner 
+                    numRows={numRows}
+                    numCols={numCols}
+                />
+            }  
+            <Options 
+                numRows={numRows}
+                numCols={numCols}
+                setNumRows={setNumRows}
+                setNumCols={setNumCols}
+
+                generated={generated}
+                setGenerated={setGenerated}
+
+            />
+        </>
+    );
+};

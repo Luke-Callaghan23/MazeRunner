@@ -1,0 +1,8 @@
+.grid-square {
+    width:  40px;
+    height: 40px;
+    /* padding: 1px; */
+    border: solid 5px grey;
+    /* margin-bottom: 3px; */
+    border-radius: 0px;
+}
