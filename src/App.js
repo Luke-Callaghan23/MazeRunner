@@ -1,19 +1,16 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Options from './components/options/Options';
 import MazeRunner from './components/mazeRunner/MazeRunner';
+import { MAZE_STATES } from './Globals.js';
 
 export default () => {
-    const [ numRows, setNumRows ] = useState('');
-    const [ numCols, setNumCols ] = useState('');
+    const [ numRows, setNumRows ] = useState(0);
+    const [ numCols, setNumCols ] = useState(0);
     
     const [ generated, setGenerated ] = useState(false);
-
-
-    useEffect(() => {
-        console.log(numRows, numCols);
-    })
+    const [ mazeState, setMazeState ] = useState(MAZE_STATES.NOT_READY);
 
     return (
         <>
@@ -24,17 +21,19 @@ export default () => {
                 <MazeRunner 
                     numRows={numRows}
                     numCols={numCols}
+                    mazeState={mazeState}
+                    setMazeState={setMazeState}
                 />
             }  
             <Options 
-                numRows={numRows}
-                numCols={numCols}
                 setNumRows={setNumRows}
                 setNumCols={setNumCols}
 
                 generated={generated}
-                setGenerated={setGenerated}
-
+                setGenerated={(value) => {
+                    setMazeState(MAZE_STATES.PICK_START);
+                    setGenerated(value);
+                }}
             />
         </>
     );

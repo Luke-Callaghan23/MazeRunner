@@ -49,20 +49,21 @@ const useStyles = makeStyles((theme) => ({
     
     
 export default function DynamicCSS({ 
-    numRows,
-    numCols,
     setNumRows,
     setNumCols,
     generated,
     setGenerated,
 }) {
-    const [color, setColor] = React.useState('default');
+    const [buttonColor, setButtonColor] = useState('default');
     const classes = useStyles();
 
 
     // const handleChange = (event) => {
     //     setColor(event.target.checked ? 'blue' : 'default');
     // };
+
+    const [ proxyRows, setProxyRows ] = useState('25');
+    const [ proxyCols, setProxyCols ] = useState('25');
 
     const [ isRowsError, setIsRowsError ] = useState(false);
     const [ isColsError, setIsColsError ] = useState(false);
@@ -74,8 +75,8 @@ export default function DynamicCSS({
         //      depending on whether the edited text box was a row or
         //      a col
         const [ setValueFunc, setErrorFunc   ]  = event.target.name === 'numRows' 
-            ? [ setNumRows,   setIsRowsError ]
-            : [ setNumCols,   setIsColsError ]
+            ? [ setProxyRows,   setIsRowsError ]
+            : [ setProxyCols,   setIsColsError ]
         ;;
 
         // Getting the value both as a number and as a string
@@ -83,24 +84,46 @@ export default function DynamicCSS({
         const asNum = Number(value);
 
         // Setting the error based on whether asNum is a valid number
-        setErrorFunc((!asNum && asNum !== 0) || asNum < 5 || parseInt(value) !== asNum)
+        setErrorFunc((!asNum && asNum !== 0) || asNum <= 0 || parseInt(value) !== asNum)
         setValueFunc(value);
     }
 
     const handleGenerate = () => {
-        setGenerated(color === 'blue')
+        if (buttonColor === 'blue') {
+            setGenerated(true)
+            
+            const constrain = (num, min, max) => {
+                if (num < min) {
+                    return min
+                }
+                else if (num > max) {
+                    return max
+                }
+                return num
+
+            }
+            const resRows = constrain(parseInt(proxyCols), 5, 100);
+            const resCols = constrain(parseInt(proxyRows), 5, 100);
+            setNumCols(resRows);
+            setNumRows(resCols);
+            setProxyRows(resRows);
+            setProxyCols(resCols);
+        }
     }
 
 
     useEffect(() => {
-        if (numRows && numCols && !isRowsError && !isColsError) {
-            setColor('blue')
+        // On numRows or numCols update, if the number of rows and cols is not
+        //      in error, then set the color of the generate button to blue
+        if (proxyRows && proxyCols && !isRowsError && !isColsError) {
+            setButtonColor('blue')
         }
+        // Otherwise, keep default red
         else {
-            setColor('default')
+        
+            setButtonColor('default')
         }
-
-    }, [ numRows, numCols ]);
+    }, [ proxyRows, proxyCols ]);
 
     return (
         <>
@@ -115,8 +138,14 @@ export default function DynamicCSS({
                 }
                 label="Blue"
             /> */}
+
             <div style={{width: '100%'}}>
 
+                {/*    
+                
+                    Form for number of rows / cols
+                
+                */}
                 <Box
                     display="flex"
                     justifyContent="center"
@@ -129,7 +158,7 @@ export default function DynamicCSS({
                             variant="outlined" 
                             name='numRows'
                             onChange={handleChange}
-                            value={numRows}
+                            value={proxyRows}
                         />
                         <span className={classes.x}> X </span>
                         <TextField 
@@ -138,20 +167,30 @@ export default function DynamicCSS({
                             variant="outlined" 
                             name='numCols'
                             onChange={handleChange}
-                            value={numCols}
+                            value={proxyCols}
                         />
                     </form>
 
                 </Box>
+
+                {/*    
+                
+                    Generate Maze button
+                
+                */}
                 <Box
                     display="flex"
                     justifyContent="center"
                     alignItems="center"
                 >
                     <StyledButton 
-                        color={color}
+                        color={buttonColor}
                         onClick={handleGenerate}
-                    >Generate</StyledButton>
+                    >{
+                        generated 
+                        ? 'Generate New Maze'
+                        : 'Generate'
+                    }</StyledButton>
                 </Box>
             </div>
         </>

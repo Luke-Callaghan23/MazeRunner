@@ -1,24 +1,46 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React from "react";
-import GridItem from './../gridItem/GridItem.jsx';
+import { CellComponent, Cell } from './../gridItem/Cell.jsx';
 
 
-export default (props) => (
+const map = (num, in_min, in_max, out_min, out_max) => {
+
+    if (num > 40) {
+        return 1
+    }
+    else {
+        return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+    }
+}
+
+
+export default ({
+    numRows,
+    numCols,
+    gridClick,
+    grid
+}) => (
     <div style={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${props.numCols}, 49px)`
+        width: '80vh', 
+        height: '80vh',
+        display: 'grid',
+        gridTemplateColumns: `${(() => {
+            let str = '';
+            for (let i = 0; i < numCols; i++) {
+                str += 'auto ';
+            }
+            return str
+        })()}`
     }}> {
-        props.grid.map((rData, row) => (
+        grid.map((rData, row) => (
             rData.map((_, col) => (
-                <GridItem  
+                <CellComponent  
                     key={`${row}-${col}`}
-                    
-                    data={{
-                        row:       row,
-                        col:       col,
-                        gridClick: props.gridClick,
-                        color:     props.grid[row][col] ? "pink" : "black"
-                    }} 
+                    cellObject={grid[row][col]}
+                    borderWidth={map(numCols, 5, 40, 5, 1)}
+                    borderHeight={map(numRows, 5, 40, 5, 1)}
+                    gridClick={gridClick}
                 />
             ))
         ))

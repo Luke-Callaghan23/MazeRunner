@@ -5,16 +5,15 @@ import Grid from '../grid/Grid.jsx';
 import { Cell } from '../gridItem/Cell.jsx';
 import ControlBar from '../controlBar/ControlBar';
 import { Box } from "@material-ui/core";
-import { MAZE_STATES, range } from './../../Globals.js';
 
 
 const generateEmptyGrid = (numRows, numCols) => {
     let rows = [];
-    for (let curRow = 0; curRow < numRows; curRow++) {
+    for (let row = 0; row < numRows; row++) {
         let row = []
-        for (let curCol = 0; curCol < numCols; curCol++) {
+        for (let col = 0; col < numCols; col++) {
             row.push (
-                new Cell(curRow, curCol, 0)
+                new Cell(row, col, 0)
             )
         }
         rows.push(row)
@@ -25,11 +24,11 @@ const generateEmptyGrid = (numRows, numCols) => {
 
 export default ({
     numRows,
-    numCols,
-    mazeState,
-    setMazeState
+    numCols
 }) => {
-    const [ grid, setGrid ] = useState(null);
+    const [ grid, setGrid ] = useState(() => (
+        generateEmptyGrid(numRows, numCols)
+    ));
     const [running, setRunning] = useState(false);
 
     const runningRef = useRef(running);
@@ -37,55 +36,20 @@ export default ({
 
     const numRowsRef = useRef(numRows);
     const numColsRef = useRef(numCols);
+
     numRowsRef.current = numRows;
     numColsRef.current = numCols;
 
     useEffect(() => {
-        setGrid(() => {
-            let grid = generateEmptyGrid(numRows, numCols);
-    
-            range(numRows).forEach(row => {
-                grid[row][0].state = 2;
-                grid[row][numRows - 1].state = 2;
-            });
-            range(numCols).forEach(col => {
-                grid[0][col].state = 2;
-                grid[numCols - 1][col].state = 2;
-            });
-    
-            return grid;
-        })
+        setGrid(generateEmptyGrid(numRows, numCols))
         numRowsRef.current = numRows;
         numColsRef.current = numCols;
     }, [ numRows, numCols ]);    
 
-    
-    useEffect(() => {
-        console.log('cummies');
-    }, [grid])
-
-    useEffect(() => {
-        switch (mazeState) {
-            case MAZE_STATES.PICK_START: {
-                break;
-            }
-            case MAZE_STATES.PICK_END: {
-                break;
-            }
-            case MAZE_STATES.RUNNING: {
-                break;
-            }
-            case MAZE_STATES.FINISHED: {
-                break;
-            }
-            default:
-        }
-    }, [ mazeState ]);
 
 
-    return (
-    grid !== null && 
-    <>
+
+    return (<>
         <Box
             display="flex"
             justifyContent="center"
@@ -118,23 +82,23 @@ export default ({
                 padding: 0,
                 width: 'fit-content', 
                 height: 'fit-content', 
-            }}> 
+            }}>
                 <Grid 
                     numRows={numRows}
                     numCols={numCols}
                     grid={grid}
-                    gridClick={(rowNum, colNum) => {
+                    gridClick={(row, col) => {
                         setGrid(old => {
-                            let grid = old.map(curRow => (
-                                curRow.map(curCol => (
-                                    new Cell (
-                                        curCol.row, 
-                                        curCol.col, 
-                                        curCol.state
-                                    )
+                            let grid = old.map(row => (
+                                row.map(col => (
+                                    col
                                 ))
                             ));
-                            grid[rowNum][colNum].state = grid[rowNum][colNum].state === 1 ? 0 : 1;
+                            grid[row][col].state 
+                            
+                            
+                            
+                            = !grid[row][col].state;
                             return grid;
                         });
                     }}
