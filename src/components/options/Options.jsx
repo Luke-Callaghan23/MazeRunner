@@ -6,7 +6,8 @@ import Switch from '@material-ui/core/Switch';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Box from "@material-ui/core/Box";
-// Like https://github.com/brunobertolini/styled-by
+import { Icon, Modal } from 'semantic-ui-react'
+import { Button as ModalButton } from 'semantic-ui-react'
 const styledBy = (property, mapping) => (props) => mapping[props[property]];
 
 const styles = {
@@ -68,6 +69,8 @@ export default function DynamicCSS({
     const [ isRowsError, setIsRowsError ] = useState(false);
     const [ isColsError, setIsColsError ] = useState(false);
 
+    const [ isModalOpen, setIsModalOpen ] = useState(false);
+
 
     const handleChange = (event) => {
 
@@ -90,25 +93,43 @@ export default function DynamicCSS({
 
     const handleGenerate = () => {
         if (buttonColor === 'blue') {
-            setGenerated(true)
-            
-            const constrain = (num, min, max) => {
-                if (num < min) {
-                    return min
-                }
-                else if (num > max) {
-                    return max
-                }
-                return num
 
+            if (generated) {
+                // If there is already a maze, send a pop up modal asking for confirmation
+
+                setIsModalOpen(true);
             }
-            const resRows = constrain(parseInt(proxyCols), 5, 100);
-            const resCols = constrain(parseInt(proxyRows), 5, 100);
-            setNumCols(resRows);
-            setNumRows(resCols);
-            setProxyRows(resRows);
-            setProxyCols(resCols);
+            else {
+                newMaze();
+            }
         }
+    }
+
+    const newMaze = () => {
+        // Set the state of generated to true
+        setGenerated(true);
+            
+        // Small function to constrain a value on a range
+        const constrain = (num, min, max) => {
+            if (num < min) {
+                return min;
+            }
+            else if (num > max) {
+                return max;
+            }
+            return num;
+        }
+
+        // Getting the constrained rows / cols, and setting proxyRows / proxyCols
+        //      and numRows / numCols
+        const resRows = constrain(parseInt(proxyRows), 5, 100);
+        const resCols = constrain(parseInt(proxyCols), 5, 100);
+        setNumRows(resRows);
+        setNumCols(resCols);
+        setProxyRows(resRows);
+        setProxyCols(resCols);
+
+        setIsModalOpen(false);
     }
 
 
@@ -192,6 +213,27 @@ export default function DynamicCSS({
                         : 'Generate'
                     }</StyledButton>
                 </Box>
+
+
+                {/*
+                
+                    Generate new maze modal
+                
+                */}
+                <Modal
+                    size='mini'
+                    open={isModalOpen}
+                    onClose={() => setIsModalOpen(false) }
+                >
+                    <Modal.Header>Generate new maze?</Modal.Header>
+                    <Modal.Content>
+                        <p>Are you sure you want to generate a new maze, and erase this one?</p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <ModalButton negative onClick={() => setIsModalOpen(false) }> No </ModalButton>
+                        <ModalButton positive onClick={() => newMaze()}> Yes </ModalButton>
+                    </Modal.Actions>
+                </Modal>
             </div>
         </>
     );

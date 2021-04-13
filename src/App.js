@@ -1,6 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React, { useState } from 'react';
 import './App.css';
+import 'semantic-ui-css/semantic.min.css';
 import Options from './components/options/Options';
 import MazeRunner from './components/mazeRunner/MazeRunner';
 import { MAZE_STATES } from './Globals.js';

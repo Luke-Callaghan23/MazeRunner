@@ -22,8 +22,8 @@ export default ({
     grid
 }) => (
     <div style={{
-        width: '80vh', 
-        height: '80vh',
+        width: '80vw', 
+        height: '80vw',
         display: 'grid',
         gridTemplateColumns: `${(() => {
             let str = '';

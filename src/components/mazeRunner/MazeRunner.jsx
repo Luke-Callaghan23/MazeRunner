@@ -42,15 +42,21 @@ export default ({
 
     useEffect(() => {
         setGrid(() => {
+
+            
             let grid = generateEmptyGrid(numRows, numCols);
+            console.log(numRows, numCols);
+            console.log(grid.length, grid[0].length);
     
+            console.log(grid)
             range(numRows).forEach(row => {
                 grid[row][0].state = 2;
-                grid[row][numRows - 1].state = 2;
+                console.log(row, numRows);
+                grid[row][numCols - 1].state = 2;
             });
             range(numCols).forEach(col => {
                 grid[0][col].state = 2;
-                grid[numCols - 1][col].state = 2;
+                grid[numRows - 1][col].state = 2;
             });
     
             return grid;
@@ -60,10 +66,6 @@ export default ({
     }, [ numRows, numCols ]);    
 
     
-    useEffect(() => {
-        console.log('cummies');
-    }, [grid])
-
     useEffect(() => {
         switch (mazeState) {
             case MAZE_STATES.PICK_START: {

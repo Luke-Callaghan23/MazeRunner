@@ -34,35 +34,37 @@ export default ({
         if (!runningRef.current) {
             return;
         }
-        
-        setGrid(g => {
-            const newGrid = [];
-            for (let row = 0; row < numRowsRef.current; row++) {
-                const newRow = [];
-                for (let col = 0; col < numColsRef.current; col++) {
-                    let neighbors = 0;
-                    operations.forEach(([x, y]) => {
-                        const newI = row + x;
-                        const newK = col + y;
-                        if (newI >= 0 && newI < numRowsRef.current && newK >= 0 && newK < numColsRef.current) {
-                            neighbors += g[newI][newK].state;
-                        }
-                    });
+       
+        // setGrid();
 
-                    const cell = new Cell(row, col, g[row][col].state);
+        // setGrid(g => {
+        //     const newGrid = [];
+        //     for (let row = 0; row < numRowsRef.current; row++) {
+        //         const newRow = [];
+        //         for (let col = 0; col < numColsRef.current; col++) {
+        //             let neighbors = 0;
+        //             operations.forEach(([x, y]) => {
+        //                 const newI = row + x;
+        //                 const newK = col + y;
+        //                 if (newI >= 0 && newI < numRowsRef.current && newK >= 0 && newK < numColsRef.current) {
+        //                     neighbors += g[newI][newK].state;
+        //                 }
+        //             });
+
+        //             const cell = new Cell(row, col, g[row][col].state);
                     
-                    if (neighbors < 2 || neighbors > 3) {
-                        cell.state = 0;
-                    } else if (g[row][col].state === 0 && neighbors === 3) {
-                        cell.state = 1;
-                    }
+        //             if (neighbors < 2 || neighbors > 3) {
+        //                 cell.state = 0;
+        //             } else if (g[row][col].state === 0 && neighbors === 3) {
+        //                 cell.state = 1;
+        //             }
 
-                    newRow.push(cell);
-                }
-                newGrid.push(newRow);
-            }
-            return newGrid;
-        });
+        //             newRow.push(cell);
+        //         }
+        //         newGrid.push(newRow);
+        //     }
+        //     return newGrid;
+        // });
         
         setTimeout(runSimulation, 100);
     }, []);
@@ -75,7 +77,15 @@ export default ({
             alignItems="center"
         >
             <Button variant='contained' 
-                color={ running ? 'secondary' : 'primary' }
+                color={ 'primary' }
+                onClick={()=>{}}
+                style={{
+                    width: '30%',
+                    height: '50px'
+                }}
+            > Prev </Button>
+            <Button variant='contained' 
+                color={running ? 'secondary' : 'primary'}
                 onClick={() => {
                     setRunning(!running);
                     if (!running) {
@@ -89,30 +99,12 @@ export default ({
                 }}
             > {running ? "Stop" : "Start"} </Button>
             <Button variant='contained' color='primary'
-                onClick={() => (
-                    setGrid (() => (
-                        generateEmptyGrid(numRowsRef.current, numColsRef.current).map(row => (
-                            row.map(col => {
-                                col.state = Math.random() > 0.7 ? 1 : 0;
-                                return col;
-                            })
-                        ))
-                    ))
-                )}
+                onClick={()=>{}}
                 style={{
                     width: '30%',
                     height: '50px'
                 }}
-            > Random </Button>
-            <Button variant='contained' color='primary'
-                onClick={() => {
-                    setGrid(generateEmptyGrid(numRowsRef.current, numColsRef.current));
-                }}
-                style={{
-                    width: '30%',
-                    height: '50px'
-                }}
-            > Clear </Button>
+            > Next </Button>
         </Box>
     )
 }
