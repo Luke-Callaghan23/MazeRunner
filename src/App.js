@@ -106,6 +106,8 @@ export default () => {
         });
     useEffect(() => (window.onresize = updateSize), []);
     
+    const [ speed, setSpeed ] = useState(50);
+    const speedRef = useRef(speed);
 
     return (
         <ThemeProvider theme={themeConfig}>
@@ -157,6 +159,7 @@ export default () => {
                     }}>
                         <CardContent>
                             <MazeRunner 
+                                speedRef={speedRef}
                                 size={size}
                                 classes={classes}
                                 grid={grid}
@@ -183,6 +186,14 @@ export default () => {
                     <CardContent>
 
                         <Options 
+
+                            speed={speed}
+                            setSpeed={(speed) => {
+                                speed = parseInt(speed);
+                                setSpeed(speed);
+                                speedRef.current = speed;
+                            }}
+
                             setNumRows={setNumRows}
                             setNumCols={setNumCols}
 

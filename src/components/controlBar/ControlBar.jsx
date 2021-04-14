@@ -15,49 +15,6 @@ export default ({
     runningRef, 
     setRunning, 
 }) => {
-    
-    // const classes = useStyles();
-
-    const runSimulation = useCallback(() => {
-        if (!runningRef.current) {
-            return;
-        }
-       
-        // setGrid();
-
-        // setGrid(g => {
-        //     const newGrid = [];
-        //     for (let row = 0; row < numRowsRef.current; row++) {
-        //         const newRow = [];
-        //         for (let col = 0; col < numColsRef.current; col++) {
-        //             let neighbors = 0;
-        //             operations.forEach(([x, y]) => {
-        //                 const newI = row + x;
-        //                 const newK = col + y;
-        //                 if (newI >= 0 && newI < numRowsRef.current && newK >= 0 && newK < numColsRef.current) {
-        //                     neighbors += g[newI][newK].state;
-        //                 }
-        //             });
-
-        //             const cell = new Cell(row, col, g[row][col].state);
-                    
-        //             if (neighbors < 2 || neighbors > 3) {
-        //                 cell.state = 0;
-        //             } else if (g[row][col].state === 0 && neighbors === 3) {
-        //                 cell.state = 1;
-        //             }
-
-        //             newRow.push(cell);
-        //         }
-        //         newGrid.push(newRow);
-        //     }
-        //     return newGrid;
-        // });
-        
-        setTimeout(runSimulation, 100);
-    }, []);
-
-
     return (
         <Box
             display="flex"

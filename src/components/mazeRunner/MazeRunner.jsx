@@ -11,6 +11,7 @@ import './../gridItem/grid-style.css'
 import MazeGenerator from './mazeAlgorithms/mazeGenerator.js';
 
 export default ({
+    speedRef,
     size,
     classes,
     grid, 
@@ -29,15 +30,13 @@ export default ({
     mazeStateRef.current = mazeState;
     
     // Hacky way to re render without actually changing anything
-    const [ _, reRender ] = useState(true);
+    const [ render, reRender ] = useState(true);
 
     const tickFunction = useRef(null);
     const tick = useCallback(() => {
         if (!runningRef.current) {
             return;
         }
-
-        console.log('tick');
 
         // If there is a current tick function, call it
         const finished = tickFunction.current &&
@@ -58,13 +57,11 @@ export default ({
     
     // tick();
     useEffect(() => {
-        console.log('rerender');
-        
         if (running) {
-            setTimeout(tick, 50);
+            console.log('next tick', speedRef.current);
+            setTimeout(tick, (100 - speedRef.current));
         }
     });
-    console.log('bob')
 
     const [ maze, setMaze ] = useState({
         start: [ -1, -1 ],
@@ -228,8 +225,6 @@ export default ({
                 
                 if (validEnd.find(([row, col]) => row === rowNum && col === colNum)) {
                     
-                    console.log(maze);
-
                     // Set the end point of the maze
                     setMaze(maze => ({
                         ...maze,
@@ -257,11 +252,6 @@ export default ({
             default:
         }
     };
-
-    useEffect(() => {
-        console.log(validEnd);
-    })
-
 
     return (
     grid !== null && 

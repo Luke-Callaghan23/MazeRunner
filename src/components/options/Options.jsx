@@ -9,6 +9,8 @@ import Box from "@material-ui/core/Box";
 import { Icon, Modal } from 'semantic-ui-react'
 import { Button as ModalButton } from 'semantic-ui-react'
 import { shake } from 'Globals';
+import { Typography } from '@material-ui/core';
+import Slider from '@material-ui/core/Slider';
 const styledBy = (property, mapping) => (props) => mapping[props[property]];
 
 const styles = {
@@ -47,6 +49,12 @@ const useStyles = makeStyles((theme) => ({
         color: 'grey',
         margin: '0px',
     },
+    slider: {
+        width: 300 + theme.spacing(3) * 2,
+    },
+    margin: {
+        height: theme.spacing(3),
+    },
 }));
     
     
@@ -55,6 +63,8 @@ export default function DynamicCSS({
     setNumCols,
     generated,
     setGenerated,
+    speed,
+    setSpeed
 }) {
     const [buttonColor, setButtonColor] = useState('default');
     const classes = useStyles();
@@ -74,6 +84,7 @@ export default function DynamicCSS({
 
 
     const buttonRef = useRef(null);
+    const sliderRef = useRef(null);
 
     const handleChange = (event) => {
 
@@ -106,7 +117,7 @@ export default function DynamicCSS({
             }
         }
         else {
-            shake(buttonRef.current.children[0].children[0]);
+            // shake(buttonRef.current.children[0].children[0]);
         }
     }
 
@@ -149,6 +160,36 @@ export default function DynamicCSS({
         }
     }, [ proxyRows, proxyCols ]);
 
+    const PrettoSlider = withStyles({
+        root: {
+            color: '#52af77',
+            height: 8,
+        },
+        thumb: {
+            height: 24,
+            width: 24,
+            backgroundColor: '#fff',
+            border: '2px solid currentColor',
+            marginTop: -8,
+            marginLeft: -12,
+            '&:focus, &:hover, &$active': {
+            boxShadow: 'inherit',
+            },
+        },
+        active: {},
+        valueLabel: {
+            left: 'calc(-50% + 4px)',
+        },
+        track: {
+            height: 8,
+            borderRadius: 4,
+        },
+        rail: {
+            height: 8,
+            borderRadius: 4,
+        },
+    })(Slider);
+
     return (
         <>
             {/* <FormControlLabel
@@ -162,6 +203,31 @@ export default function DynamicCSS({
                 }
                 label="Blue"
             /> */}
+
+            {
+                generated && 
+                <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                >
+                    <div style={{width:'80%'}}>
+                        <div className={classes.margin} />
+                        <Typography gutterBottom variant="h4">Speed</Typography>
+                        <PrettoSlider 
+                            valueLabelDisplay="auto" 
+                            aria-label="pretto slider" 
+                            defaultValue={speed}
+                            ref={sliderRef}
+                            onChangeCommitted={() => {
+                                setSpeed(sliderRef.current.children[2].value);
+                            }}
+                            // onChange={(event) => setSpeed(event.target.value)} 
+                        />
+                        <div className={classes.margin} />
+                    </div>
+                </Box>
+            }
 
             <div style={{width: '100%'}}>
 

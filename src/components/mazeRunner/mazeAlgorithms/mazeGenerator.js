@@ -14,7 +14,8 @@ export default class MazeGenerator {
         const self = this;
 
         return () => {
-            console.log(self);
+
+            console.log('maze generator tick');
 
             // Small function to collect all the valid (unvisited) neighbors of the
             //      the current cell
@@ -132,36 +133,7 @@ export default class MazeGenerator {
 
     static getDirection (chosenRow, chosenCol, chosen, grid) {
         const dirs = [];
-
         
-
-        try {
-            console.log('NORTH ', chosenRow > 0 
-            , chosen.borders[DIRECTIONS.NORTH] 
-            , grid[chosenRow - 1][chosenCol]
-            , grid[chosenRow - 1][chosenCol].state)
-        } catch {}
-
-        try {
-            console.log('EAST ', chosenCol < grid[0].length - 1
-            , chosen.borders[DIRECTIONS.EAST] 
-            ,  grid[chosenRow][chosenCol + 1]
-            ,  grid[chosenRow][chosenCol + 1].state)
-        } catch {}
-        
-        try {
-            console.log('SOUTH ', chosenRow < grid.length - 1 
-            , chosen.borders[DIRECTIONS.SOUTH] 
-            , grid[chosenRow + 1][chosenCol]
-            , grid[chosenRow + 1][chosenCol].state)
-        } catch {}
-
-        try {
-            console.log('WEST ', chosenCol > 0 
-            , chosen.borders[DIRECTIONS.WEST] 
-            , grid[chosenRow][chosenCol - 1]
-            , grid[chosenRow][chosenCol - 1].state)
-        } catch {}
 
         // NORTH
         if (chosenRow > 0 
