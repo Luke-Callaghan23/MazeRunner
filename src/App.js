@@ -1,5 +1,5 @@
 /* eslint-disable import/no-anonymous-default-export */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
 import Options from './components/options/Options';
@@ -95,6 +95,16 @@ export default () => {
     // @ts-ignore
     const themeConfig = createMuiTheme(theme);
 
+    const [size, setSize] = useState({
+        x: window.innerWidth,
+        y: window.innerHeight
+    });
+    const updateSize = () =>
+        setSize({
+            x: window.innerWidth,
+            y: window.innerHeight
+        });
+    useEffect(() => (window.onresize = updateSize), []);
     
 
     return (
@@ -147,6 +157,7 @@ export default () => {
                     }}>
                         <CardContent>
                             <MazeRunner 
+                                size={size}
                                 classes={classes}
                                 grid={grid}
                                 setGrid={setGrid}

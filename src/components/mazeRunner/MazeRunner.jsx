@@ -8,9 +8,10 @@ import ControlBar from '../controlBar/ControlBar';
 import { Box, Card, CardContent, Typography } from "@material-ui/core";
 import { MAZE_STATES, DIRECTIONS, range, shake } from './../../Globals.js';
 import './../gridItem/grid-style.css'
-import MazeGenerator from './mazeAlgorithms/mazeGenerator.ts';
+import MazeGenerator from './mazeAlgorithms/mazeGenerator.js';
 
 export default ({
+    size,
     classes,
     grid, 
     setGrid,
@@ -28,7 +29,7 @@ export default ({
     mazeStateRef.current = mazeState;
     
     // Hacky way to re render without actually changing anything
-    const [ renders, reRender ] = useState(true);
+    const [ _, reRender ] = useState(true);
 
     const tickFunction = useRef(null);
     const tick = useCallback(() => {
@@ -43,13 +44,15 @@ export default ({
         tickFunction.current();
 
         if (finished) {
+            // If the ticking is finished, set running to false,
+            //      and incremenet the maze state
             setRunning(false);
+            setMazeState(mazeState => mazeState + 1);
         }
-
-        // Call a re render
-        reRender(Math.random());
-
-
+        else {
+            // Call a re render
+            reRender(render => !render);
+        }
     }, []);
     
     
@@ -89,6 +92,35 @@ export default ({
                 break;
             }
             case MAZE_STATES.RUNNING: {
+
+                const f = grid.map(row => 
+                    row.map(col => 
+                        col['cell']
+                    )
+                );
+
+                // Turn the start and end green
+                const [ startRow, startCol ] = maze.start;
+                const [ endRow  , endCol   ] = maze.end;
+                
+                // Remove a random wall from the end cell
+                const end = grid[endRow][endCol]['cell'];
+                MazeGenerator.selectAndRemoveWall(endRow, endCol, end, f);
+                
+                // Turn everything black
+                grid.forEach(row => {
+                    row.forEach(col => {
+                        col['cell'].state = Cell.STATES.OFF;
+                    })
+                });
+                
+                grid[startRow][startCol]['cell'].state = Cell.STATES.CURRENT;
+                grid[endRow  ][endCol  ]['cell'].state = Cell.STATES.CURRENT;
+
+                // Re render the new colors and reset the tick function
+                reRender(render => !render);
+                tickFunction.current = null;
+
                 break;
             }
             case MAZE_STATES.FINISHED: {
@@ -277,6 +309,7 @@ export default ({
                 height: 'fit-content', 
             }}> 
                 <Grid 
+                    size={size}
                     numRows={numRows}
                     numCols={numCols}
                     grid={grid}

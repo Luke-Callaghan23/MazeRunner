@@ -16,14 +16,15 @@ const map = (num, in_min, in_max, out_min, out_max) => {
 
 
 export default ({
+    size,
     numRows,
     numCols,
     gridClick,
     grid
 }) => (
     <div style={{
-        width: '80vw', 
-        height: '80vw',
+        width: `80v${size.x > size.y ? 'h' : 'w'}`, 
+        height: `80v${size.x > size.y ? 'h' : 'w'}`,
         display: 'grid',
         gridTemplateColumns: `${(() => {
             let str = '';
