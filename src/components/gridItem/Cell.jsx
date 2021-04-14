@@ -2,7 +2,7 @@
 import React from 'react';
 
 import { DIRECTIONS } from '../../Globals.js';
-
+import './grid-style.css';
 class Cell {
     constructor(row, col, state) {
         this.row = row;
@@ -12,26 +12,39 @@ class Cell {
             true, true, 
             true, true,
         ];
+        this.flags = {};
     }
 
 }
 
+Cell.STATES = {
+    OFF: 0,
+    OLD: 2,
+    CURRENT: 2,
+    PASSED: 3,
+    HOLD: 4,
+}
+
 Cell.StateColorMap = {
-    0: 'black',
-    1: 'pink',
-    2: '#99ff66',
+    [Cell.STATES.OFF]: 'black',
+    [Cell.STATES.OLD]: 'pink',
+    [Cell.STATES.CURRENT]: '#99ff66',
+    [Cell.STATES.PASSED]: '#bb0000',
+    [Cell.STATES.HOLD]: 'blue'
 };
 
 
 
 
 const CellComponent = ({
+    rref,
     cellObject,
     borderWidth,
     borderHeight,
     gridClick,
 }) => (
     <div
+    ref={rref}
     onClick={() => gridClick(cellObject.row, cellObject.col)}
     style={{
         border: `solid grey`,
@@ -41,7 +54,6 @@ const CellComponent = ({
             ${cellObject.borders[DIRECTIONS.SOUTH] ? borderHeight : 0}px 
             ${cellObject.borders[DIRECTIONS.WEST ] ? borderWidth  : 0}px 
         `,
-        borderRadius: "0px",
         backgroundColor: Cell.StateColorMap[cellObject.state],
     }} />
 )

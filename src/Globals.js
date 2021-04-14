@@ -26,4 +26,22 @@ const range = (start, end=null) => {
     return arr;
 }
 
-export { DIRECTIONS, MAZE_STATES, range };
+const randRange = (min, max) => { 
+    return Math.random() * (max - min) + min;
+} 
+
+
+// Small function to add a 'shaking' animation to an element, when an invalid
+//      action occurs
+const shake = (element) => {
+    element.classList.add('anim-wobble');
+    element.style.backgroundColor = 'red';
+
+    
+    setTimeout(() => {
+        element.style.backgroundColor = 'black';
+        element.classList.remove('anim-wobble');
+    }, 2000);
+}
+
+export { DIRECTIONS, MAZE_STATES, range, shake, randRange };

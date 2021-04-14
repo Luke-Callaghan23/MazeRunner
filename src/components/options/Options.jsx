@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -8,6 +8,7 @@ import TextField from '@material-ui/core/TextField';
 import Box from "@material-ui/core/Box";
 import { Icon, Modal } from 'semantic-ui-react'
 import { Button as ModalButton } from 'semantic-ui-react'
+import { shake } from 'Globals';
 const styledBy = (property, mapping) => (props) => mapping[props[property]];
 
 const styles = {
@@ -29,8 +30,8 @@ const styles = {
     },
 };
 
-const StyledButton = withStyles(styles)(({ classes, color, ...other }) => (
-    <Button className={classes.root} {...other} />
+const StyledButton = withStyles(styles)(({ classes, color, ref, ...other }) => (
+    <Button ref={ref} className={classes.root} {...other} />
 ));
     
     
@@ -72,6 +73,8 @@ export default function DynamicCSS({
     const [ isModalOpen, setIsModalOpen ] = useState(false);
 
 
+    const buttonRef = useRef(null);
+
     const handleChange = (event) => {
 
         // Getting the correct setter functions for the value and the error
@@ -96,19 +99,18 @@ export default function DynamicCSS({
 
             if (generated) {
                 // If there is already a maze, send a pop up modal asking for confirmation
-
                 setIsModalOpen(true);
             }
             else {
                 newMaze();
             }
         }
+        else {
+            shake(buttonRef.current.children[0].children[0]);
+        }
     }
 
     const newMaze = () => {
-        // Set the state of generated to true
-        setGenerated(true);
-            
         // Small function to constrain a value on a range
         const constrain = (num, min, max) => {
             if (num < min) {
@@ -119,17 +121,18 @@ export default function DynamicCSS({
             }
             return num;
         }
-
+        
         // Getting the constrained rows / cols, and setting proxyRows / proxyCols
         //      and numRows / numCols
         const resRows = constrain(parseInt(proxyRows), 5, 100);
         const resCols = constrain(parseInt(proxyCols), 5, 100);
-        setNumRows(resRows);
-        setNumCols(resCols);
         setProxyRows(resRows);
         setProxyCols(resCols);
 
         setIsModalOpen(false);
+
+        // Set the state of generated to true
+        setGenerated(true, resRows, resCols);
     }
 
 
@@ -199,20 +202,24 @@ export default function DynamicCSS({
                     Generate Maze button
                 
                 */}
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
+                <div 
+                    ref={buttonRef}
                 >
-                    <StyledButton 
-                        color={buttonColor}
-                        onClick={handleGenerate}
-                    >{
-                        generated 
-                        ? 'Generate New Maze'
-                        : 'Generate'
-                    }</StyledButton>
-                </Box>
+                    <Box
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <StyledButton 
+                            color={buttonColor}
+                            onClick={handleGenerate}
+                        >{
+                            generated 
+                            ? 'Generate New Maze'
+                            : 'Generate'
+                        }</StyledButton>
+                    </Box>
+                </div>
 
 
                 {/*
@@ -227,7 +234,9 @@ export default function DynamicCSS({
                 >
                     <Modal.Header>Generate new maze?</Modal.Header>
                     <Modal.Content>
-                        <p>Are you sure you want to generate a new maze, and erase this one?</p>
+                        <p style={{
+                            color: 'black'
+                        }}> Are you sure you want to generate a new maze, and erase this one?</p>
                     </Modal.Content>
                     <Modal.Actions>
                         <ModalButton negative onClick={() => setIsModalOpen(false) }> No </ModalButton>

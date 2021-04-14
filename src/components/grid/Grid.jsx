@@ -37,7 +37,8 @@ export default ({
             rData.map((_, col) => (
                 <CellComponent  
                     key={`${row}-${col}`}
-                    cellObject={grid[row][col]}
+                    rref={grid[row][col]['ref']}
+                    cellObject={grid[row][col]['cell']}
                     borderWidth={map(numCols, 5, 40, 5, 1)}
                     borderHeight={map(numRows, 5, 40, 5, 1)}
                     gridClick={gridClick}

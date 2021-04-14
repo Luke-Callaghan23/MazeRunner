@@ -7,25 +7,13 @@ import { Cell } from './../gridItem/Cell.jsx';
 import Button from '@material-ui/core/Button';
 import { Box } from "@material-ui/core";
 
-const operations = [
-    [0, 1],
-    [0, -1],
-    [1, -1],
-    [-1, 1],
-    [1, 1],
-    [-1, -1],
-    [1, 0],
-    [-1, 0]
-];
-
 export default ({ 
     numRowsRef, 
     numColsRef, 
+    tick,
     running, 
     runningRef, 
     setRunning, 
-    setGrid, 
-    generateEmptyGrid 
 }) => {
     
     // const classes = useStyles();
@@ -90,7 +78,8 @@ export default ({
                     setRunning(!running);
                     if (!running) {
                         runningRef.current = true;
-                        runSimulation();
+                        // runSimulation();
+                        tick();
                     }
                 }}
                 style={{
