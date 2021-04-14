@@ -4,16 +4,17 @@ import { Cell } from '../../gridItem/Cell';
 export default class MazeGenerator {
     constructor(grid, start, end) {
         this.grid  = grid;
+        this.start = start;
         this.end   = end;
         this.cur   = start;
         this.stack = [];
         this.grid[this.cur[0]][start[1]].state = Cell.STATES.CURRENT;
     }
 
-    tick() {
+    getFunctions() {
         const self = this;
 
-        return () => {
+        const tick = () => {
 
             console.log('maze generator tick');
 
@@ -114,7 +115,21 @@ export default class MazeGenerator {
             chosen.state = Cell.STATES.CURRENT;
 
             return false;
+        };
+
+        const reset = () => {
+            self.cur = self.start;
+            self.stack = [];
         }
+
+        const skip = () => {
+            let res = false;
+            while (!res) {
+                res = tick();
+            }
+        }
+
+        return [ tick, reset, skip ]
     }
 
     static selectAndRemoveWall (chosenRow, chosenCol, chosen, grid) {

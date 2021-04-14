@@ -200,24 +200,31 @@ export default () => {
                             generated={generated}
                             setGenerated={(value, proxyRows, proxyCols) => {
 
+                                // Set the new row / col count
                                 setNumRows(proxyRows);
                                 setNumCols(proxyCols);
                                 numRowsRef.current = proxyRows;
                                 numColsRef.current = proxyCols;
 
+                                // Generate a new grid with empty cells
                                 let grid = generateEmptyGrid(proxyRows, proxyCols);
                                 
+                                // Setting the states of both the edge columns to be green
                                 range(proxyRows).forEach(row => {
                                     grid[row][0]['cell'].state = Cell.STATES.CURRENT;
                                     grid[row][proxyCols - 1]['cell'].state = Cell.STATES.CURRENT;
                                 });
+
+                                // Setting the states of both the edge rows to be green
                                 range(proxyCols).forEach(col => {
                                     grid[0][col]['cell'].state = Cell.STATES.CURRENT;
                                     grid[proxyRows - 1][col]['cell'].state = Cell.STATES.CURRENT;
                                 });
 
+                                // Setting the new grid state
                                 setGrid(grid);
 
+                                // Set the maze state to be the beginning state again
                                 setMazeState(MAZE_STATES.PICK_START);
                                 setGenerated(value);
                             }}

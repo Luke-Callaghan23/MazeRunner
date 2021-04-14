@@ -11,7 +11,6 @@ import { MAZE_STATES } from "Globals.js";
 export default ({ 
     maze,
     mazeState,
-    setMazeState,
     grid,
     tick,
     resetFunction,
@@ -28,7 +27,7 @@ export default ({
         >
             <Button variant='contained' 
                 color={ 'primary' }
-                disabled={!(mazeState === MAZE_STATES.RUNNING || mazeState === MAZE_STATES.GENERATING) || !running}
+                disabled={mazeState > MAZE_STATES.PICK_END}
 
                 onClick={()=>{
 
@@ -73,10 +72,10 @@ export default ({
                 }}
             > {running ? "Stop" : "Start"} </Button>
             <Button variant='contained' color='primary'
-                disabled={!(mazeState === MAZE_STATES.RUNNING || mazeState === MAZE_STATES.GENERATING) || !running}
+                disabled={mazeState > MAZE_STATES.PICK_END}
                 onClick={()=>{
                     skipFunction.current();
-                    setMazeState(mazeState + 1);
+                    setRunning(true);
                     setRunning(false);
                 }}
                 style={{

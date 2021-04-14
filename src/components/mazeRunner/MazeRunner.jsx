@@ -9,6 +9,7 @@ import { Box, Card, CardContent, Typography } from "@material-ui/core";
 import { MAZE_STATES, DIRECTIONS, range, shake } from './../../Globals.js';
 import './../gridItem/grid-style.css'
 import MazeGenerator from './mazeAlgorithms/mazeGenerator.js';
+import TurnLeft from "./mazeAlgorithms/turnLeft.js";
 
 export default ({
     speedRef,
@@ -33,6 +34,8 @@ export default ({
     const [ render, reRender ] = useState(true);
 
     const tickFunction = useRef(null);
+    const resetFunction = useRef(null);
+    const skipFunction = useRef(null);
     const tick = useCallback(() => {
         if (!runningRef.current) {
             return;
@@ -58,7 +61,6 @@ export default ({
     // tick();
     useEffect(() => {
         if (running) {
-            console.log('next tick', speedRef.current);
             setTimeout(tick, (100 - speedRef.current));
         }
     });
@@ -77,7 +79,7 @@ export default ({
 
         switch (mazeState) {
             case MAZE_STATES.GENERATING: {
-                tickFunction.current = new MazeGenerator (
+                [ tickFunction.current, resetFunction.current, skipFunction.current ] = new MazeGenerator (
                     grid.map(row => (
                         row.map(col => (
                             col['cell']
@@ -85,7 +87,7 @@ export default ({
                     ))),
                     maze['start'],
                     maze['end']
-                ).tick()
+                ).getFunctions()
                 break;
             }
             case MAZE_STATES.RUNNING: {
@@ -111,12 +113,22 @@ export default ({
                     })
                 });
                 
+                // Set the start and end to gree
                 grid[startRow][startCol]['cell'].state = Cell.STATES.CURRENT;
                 grid[endRow  ][endCol  ]['cell'].state = Cell.STATES.CURRENT;
 
+                [ tickFunction.current, resetFunction.current, skipFunction.current ] = new TurnLeft (
+                    grid.map(row => (
+                        row.map(col => (
+                            col['cell']
+                        )
+                    ))),
+                    maze['start'],
+                    maze['end']
+                ).getFunctions()
+
                 // Re render the new colors and reset the tick function
                 reRender(render => !render);
-                tickFunction.current = null;
 
                 break;
             }
@@ -276,8 +288,12 @@ export default ({
                 margin: 11
             }}>
                 <ControlBar 
-                    numRowsRef={numRowsRef} 
-                    numColsRef={numColsRef} 
+                    grid={grid}
+                    maze={maze}
+                    mazeState={mazeState}
+                    setMazeState={setMazeState}
+                    resetFunction={resetFunction}
+                    skipFunction={skipFunction}
                     tick={tick}
                     running={running} 
                     runningRef={runningRef} 
