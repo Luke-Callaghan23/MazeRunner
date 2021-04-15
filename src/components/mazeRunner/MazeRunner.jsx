@@ -10,6 +10,7 @@ import { MAZE_STATES, DIRECTIONS, range, shake } from './../../Globals.js';
 import './../gridItem/grid-style.css'
 import MazeGenerator from './mazeAlgorithms/mazeGenerator.js';
 import TurnLeft from "./mazeAlgorithms/turnLeft.js";
+import GraphGenerator from "./mazeAlgorithms/graphGenerator.js";
 
 export default ({
     speedRef,
@@ -117,16 +118,18 @@ export default ({
                 grid[startRow][startCol]['cell'].state = Cell.STATES.CURRENT;
                 grid[endRow  ][endCol  ]['cell'].state = Cell.STATES.CURRENT;
 
-                [ tickFunction.current, resetFunction.current, skipFunction.current ] = new TurnLeft (
-                    grid.map(row => (
-                        row.map(col => (
-                            col['cell']
-                        )
-                    ))),
-                    maze['start'],
-                    maze['end']
-                ).getFunctions()
+                // [ tickFunction.current, resetFunction.current, skipFunction.current ] = new TurnLeft (
+                //     grid.map(row => (
+                //         row.map(col => (
+                //             col['cell']
+                //         )
+                //     ))),
+                //     maze['start'],
+                //     maze['end']
+                // ).getFunctions()
 
+                new GraphGenerator(grid, maze.start, maze.end).generateGraph();
+                
                 // Re render the new colors and reset the tick function
                 reRender(render => !render);
 

@@ -23,6 +23,8 @@ Cell.STATES = {
     CURRENT: 2,
     PASSED: 3,
     HOLD: 4,
+    VERTEX: 5, 
+    EDGE: 6
 }
 
 Cell.StateColorMap = {
@@ -30,7 +32,9 @@ Cell.StateColorMap = {
     [Cell.STATES.OLD]: 'pink',
     [Cell.STATES.CURRENT]: '#99ff66',
     [Cell.STATES.PASSED]: '#bb0000',
-    [Cell.STATES.HOLD]: 'blue'
+    [Cell.STATES.HOLD]: 'blue',
+    [Cell.STATES.VERTEX]: '#fff200',
+    [Cell.STATES.EDGE]: '#ffae00'
 };
 
 
