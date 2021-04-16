@@ -15,7 +15,7 @@ export default class BFS {
         this.start = start;
         this.end   = end;
         this.cur   = start;
-        this.stack = [];
+        this.Q = [];
         this.grid[this.cur[0]][start[1]].state = Cell.STATES.CURRENT;
     }
 
@@ -24,15 +24,25 @@ export default class BFS {
 
         const tick = () => {
 
-            console.log('turn left tick');
+            console.log('BFS tick');
 
             const [row, col] = self.cur;
             const [endRow, endCol] = self.end;
 
-            console.log(endRow, endCol);
-
             let chosen = null;
             let found = false;
+            
+            // If the end was found, return true and end ticking
+            if (found) return true;
+
+            if (self.Q.length > 0) {
+                // If there are no valid moves next to current, pop from the 
+                //      stack to get to the last left turn not taken
+                chosen = self.Q.splice(0, 1)[0];
+            }
+            
+            console.log(self.Q);            
+
             BFS.DirectionOrder.forEach(([ rowOff, colOff, dir ]) => {
 
                 // First check if the current direction has a border
@@ -55,7 +65,7 @@ export default class BFS {
                         const potential = self.grid[row + rowOff][col + colOff];
                         if (potential.state === Cell.STATES.HOLD || potential.state === Cell.STATES.OFF) {
                             
-                            if (chosen !== null) {
+                            if (chosen === null) {
                                 // If it's a valid move, set chosen to potential
                                 chosen = potential;
                             }
@@ -63,7 +73,7 @@ export default class BFS {
                                 // If it's a valid move, and it's not the first
                                 //      valid tile, push the cell to the stack
                                 //      and set its state to HOLD
-                                self.stack.push(potential);
+                                self.Q.push(potential);
                                 potential.state = Cell.STATES.HOLD;
                             }
                         }
@@ -72,20 +82,10 @@ export default class BFS {
 
             })
 
-            // If the end was found, return true and end ticking
             if (found) return true;
 
             if (chosen === null) {
-                if (self.stack.length > 0) {
-                    // If there are no valid moves next to current, pop from the 
-                    //      stack to get to the last left turn not taken
-                    chosen = self.stack.pop();
-                }
-                else {
-                    // If there are no valid moves and no past moves in the stack,
-                    //      there is no solution, stop ticking
-                    return true;
-                }
+                return false;
             }
 
             // Set the status of the current cell to passed
@@ -101,7 +101,7 @@ export default class BFS {
 
         const reset = () => {
             self.cur = self.start;
-            self.stack = [];
+            self.Q = [];
         }
 
         const skip = () => {
