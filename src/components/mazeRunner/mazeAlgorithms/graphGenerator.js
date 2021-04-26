@@ -1,8 +1,13 @@
 import { randRange, range, DIRECTIONS } from '../../../Globals';
 import { Cell } from '../../gridItem/Cell';
-import { Graph, Vertex } from './Graph.js';
+import { Graph, Vertex } from './dataStructures/Graph.js';
 
-
+class CellMarker {
+    constructor(cordinate, discovered) {
+        this.cordinate = cordinate;
+        this.discovered = discovered;
+    }
+}
 
 // Because maze solving algorithms don't need to ever make decisions 
 //      when the cell currently being evaluated only has two walls,
@@ -74,7 +79,7 @@ export default class GraphGenerator {
                 
                 // Boolean to determine if the next vertex should be disconnected 
                 //      from the previous pvertex
-                let disconnect = borders[DIRECTIONS.EAST]  || borders[DIRECTIONS.WEST];
+                let disconnect = borders[DIRECTIONS.EAST];
                 
                 if (vertex 
                 || (rowIndex === startRow && colIndex === startCol)
@@ -86,10 +91,11 @@ export default class GraphGenerator {
                         //      one add an edge (the destination vertex) will be 
                         //      added regardless
                         lastVert = this.Graph.add_edge(lastVert, weight + 1).dest;
-                        
                         // And mark the vertex with it's row / col coords
-                        this.Graph.V[lastVert].mark = [ rowIndex, colIndex ];
-                        
+                        this.Graph.V[lastVert].mark = new CellMarker(
+                            [ rowIndex, colIndex ],
+                            false
+                        );
                     }
                     else {
                         // If the last vertex was disconnected from this one,
@@ -98,20 +104,23 @@ export default class GraphGenerator {
                         lastVert = vertex.id;
                         
                         // And mark that vertex with it's row / col coords
-                        vertex.mark = [ rowIndex, colIndex ];
+                        vertex.mark = new CellMarker(
+                            [ rowIndex, colIndex ],
+                            false
+                        );
                     }
                     
-                    this.grid[rowIndex][colIndex]['cell'].state = Cell.STATES.VERTEX;
+                    // this.grid[rowIndex][colIndex]['cell'].state = Cell.STATES.VERTEX;
 
                     // Push the id of the current vertex into the row vertices array
                     //      
                     rowVertices.push(lastVert);
                     
                     // Whenever a new vertex is added, reset the weight
-                    weight = 0;
+                    weight = -1;
                 }
                 else {
-                    this.grid[rowIndex][colIndex]['cell'].state = Cell.STATES.EDGE;
+                    // this.grid[rowIndex][colIndex]['cell'].state = Cell.STATES.EDGE;
                     rowVertices.push(-1);
                 }
                 
@@ -119,7 +128,7 @@ export default class GraphGenerator {
                     // If there was a east or west wall, the next vertex should be
                     //      disconnected from this one
                     lastVert = -1;
-                    weight = 0;
+                    weight = -1;
                 }
                 else {
                     // If there was no east or west wall, increment the weight counter
@@ -135,24 +144,29 @@ export default class GraphGenerator {
     }
 
     connectRows() {
-        this.vertexGrid[this.vertexGrid.length - 1].forEach((col, colIndex) => {
+
+        const rows = range(this.grid.length);
+        const cols = range(this.vertexGrid[0].length);
+
+        cols.forEach(colIndex => {
 
             let lastVertex = -1;
             let weight = 0;
 
-
-            range(this.grid.length).forEach((row, rowIndex) => {
+            rows.forEach(rowIndex => {
                 if (this.vertexGrid[rowIndex][colIndex] !== -1) {
-                    
                     if (lastVertex !== -1) {
-                        this.Graph.add_edge(lastVertex, weight, this.vertexGrid[rowIndex][colIndex]);
+                        this.Graph.add_edge(lastVertex, weight + 1, this.vertexGrid[rowIndex][colIndex]);
                     }
                     
-                    lastVertex = this.vertexGrid[rowIndex][colIndex];
+                    lastVertex = this.grid[rowIndex][colIndex]['cell'].borders[DIRECTIONS.SOUTH]
+                        ? -1
+                        : this.vertexGrid[rowIndex][colIndex]
+                    ;
                     weight = 0;
                 }
                 else {
-                    this.grid[rowIndex][colIndex]['cell'].state = Cell.STATES.EDGE;
+                    // this.grid[rowIndex][colIndex]['cell'].state = Cell.STATES.EDGE;
                     weight ++;
                 }
             });
@@ -163,5 +177,6 @@ export default class GraphGenerator {
         this.collectRowVertices();
         this.connectRows();
         console.log(this.Graph);
+        return this.Graph;
     }
 }

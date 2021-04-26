@@ -3,7 +3,7 @@ import { Cell } from '../../gridItem/Cell';
 
 export default class DFS {
 
-    static DirectionOrder = [ 
+    static Directions = [ 
         [ 0, -1, DIRECTIONS.WEST  ], 
         [ -1, 0, DIRECTIONS.NORTH ], 
         [ 0,  1, DIRECTIONS.EAST  ], 
@@ -24,16 +24,18 @@ export default class DFS {
 
         const tick = () => {
 
-            console.log('turn left tick');
+            console.log('DFS tick');
 
             const [row, col] = self.cur;
             const [endRow, endCol] = self.end;
 
-            console.log(endRow, endCol);
-
             let chosen = null;
             let found = false;
-            DFS.DirectionOrder.forEach(([ rowOff, colOff, dir ]) => {
+
+            // List of potential directions to move in
+            let potentials = [];
+
+            DFS.Directions.forEach(([ rowOff, colOff, dir ]) => {
 
                 // First check if the current direction has a border
                 if (!self.grid[row][col].borders[dir]) {
@@ -55,27 +57,27 @@ export default class DFS {
                         const potential = self.grid[row + rowOff][col + colOff];
                         if (potential.state === Cell.STATES.HOLD || potential.state === Cell.STATES.OFF) {
                             
-                            if (chosen !== null) {
-                                // If it's a valid move, set chosen to potential
-                                chosen = potential;
-                            }
-                            else {
-                                // If it's a valid move, and it's not the first
-                                //      valid tile, push the cell to the stack
-                                //      and set its state to HOLD
-                                self.stack.push(potential);
-                                potential.state = Cell.STATES.HOLD;
-                            }
+                            potentials.push(potential);
+                            potential.state = Cell.STATES.HOLD;
                         }
                     }
                 }
 
-            })
+            });
 
             // If the end was found, return true and end ticking
             if (found) return true;
 
-            if (chosen === null) {
+            if (potentials.length > 0) {
+                // Chose a random direction from the potential directions list, and splice
+                //      it from the potentials list as 'chosen"
+                let dir = randRange(0, potentials.length);
+                [ chosen ] = potentials.splice(dir, 1);
+
+                // Then, add the rest of the potentials to the 
+                potentials.forEach(potential => self.stack.push(potential));
+            }
+            else {
                 if (self.stack.length > 0) {
                     // If there are no valid moves next to current, pop from the 
                     //      stack to get to the last left turn not taken

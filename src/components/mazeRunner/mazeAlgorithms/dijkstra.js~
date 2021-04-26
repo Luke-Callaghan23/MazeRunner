@@ -9,7 +9,7 @@ export default class Dijkstra {
         this.grid  = grid;
         this.start = start;
         this.end   = end;
-        this.cur   = start.mark.cordinate;
+        this.cur   = start.mark;
         this.Q     = new PriorityQueue();
         this.addNeighbors(this.start, 0);
         this.edgeStack = [];
@@ -37,6 +37,8 @@ export default class Dijkstra {
             
             // Function that is used in the standard exit of a tick
             const standardExit = () => {
+                
+
                 // Set the status of the current cell to passed
                 self.grid[row][col].state = Cell.STATES.PASSED;
 
@@ -101,9 +103,7 @@ export default class Dijkstra {
                 ;;
 
                 range(1, hop + 1).forEach(offset => {
-                    const cell = gridGetter(offset, dir);
-                    self.edgeStack.push(cell);
-                    cell.state = Cell.STATES.HOLD;
+                    self.edgeStack.push(gridGetter(offset, dir));
                 });
                 
                 chosen  = self.edgeStack.shift();

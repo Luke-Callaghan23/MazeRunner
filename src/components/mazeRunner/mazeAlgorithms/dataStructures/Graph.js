@@ -35,9 +35,10 @@ class Edge {
 
 // Graph class
 class Graph {
-    constructor () {
+    constructor (directed=false) {
         this.V = [];        // list of all vertices
         this.E = [];        // list of all edges
+        this.directed = directed;
     }
 
     // Clears all marks on all vertices
@@ -81,15 +82,22 @@ class Graph {
         // Creating the source vertex if it does not already exist
         this.add_vertex(src);
         const S = this.V[src]
-
+        
         // Creating the destination vertex if it does not already exist
         this.add_vertex(dest);
         const D = this.V[dest]
-
+        
         // Adding the new edge to the OUT list of the source
         //      vertex, and the IN list of the destination vertex
         S.OUT.push(E)
         D.IN.push(E)
+
+        if (!this.directed) {
+            // If the graph is undirected, then add an edge for the opposite direction as well
+            const E2 = new Edge(dest, src, weight);
+            S.IN.push(E2);
+            D.OUT.push(E2);
+        }
 
         // Return the edge
         return E;

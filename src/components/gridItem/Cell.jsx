@@ -14,7 +14,6 @@ class Cell {
         ];
         this.flags = {};
     }
-
 }
 
 Cell.STATES = {
