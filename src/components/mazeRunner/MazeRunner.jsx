@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-lone-blocks */
 /* eslint-disable import/no-anonymous-default-export */
 import React, { useState, useRef, useEffect, useCallback } from "react";
@@ -5,14 +6,15 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import Grid from '../grid/Grid.jsx';
 import { Cell } from '../gridItem/Cell.jsx';
 import ControlBar from '../controlBar/ControlBar';
-import { Box, Card, CardContent, Typography } from "@material-ui/core";
-import { MAZE_STATES, DIRECTIONS, range, shake } from './../../Globals.js';
+import { Box, Typography } from "@material-ui/core";
+import { MAZE_STATES, range, shake } from './../../Globals.js';
 import './../gridItem/grid-style.css'
 import MazeGenerator from './mazeAlgorithms/mazeGenerator.js';
 import TurnLeft from "./mazeAlgorithms/turnLeft.js";
 import BFS from "./mazeAlgorithms/BFS.js";
 import DFS from "./mazeAlgorithms/DFS.js";
 import Dijkstra from "./mazeAlgorithms/dijkstra";
+import AStar from "./mazeAlgorithms/A*";
 import GraphGenerator from "./mazeAlgorithms/graphGenerator.js";
 
 export default ({
@@ -35,7 +37,7 @@ export default ({
     mazeStateRef.current = mazeState;
     
     // Hacky way to re render without actually changing anything
-    const [ render, reRender ] = useState(true);
+    const reRender = useState(true)[1];
 
     const tickFunction = useRef(null);
     const resetFunction = useRef(null);
@@ -125,7 +127,7 @@ export default ({
 
                 const start = graph.V.find(vertex => vertex.mark.cordinate[0] === startRow && vertex.mark.cordinate[1] === startCol);
 
-                [ tickFunction.current, resetFunction.current, skipFunction.current ] = new Dijkstra (
+                [ tickFunction.current, resetFunction.current, skipFunction.current ] = new AStar (
                     grid.map(row => (
                         row.map(col => (
                             col['cell']

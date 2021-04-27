@@ -1,7 +1,6 @@
-import { randRange, range, DIRECTIONS } from '../../../Globals';
+import { range } from '../../../Globals';
 import { Cell } from '../../gridItem/Cell';
 import PriorityQueue from './dataStructures/PriorityQueue';
-import { Graph, Vertex, Edge } from './dataStructures/Graph';
 
 export default class Dijkstra {
     constructor(grid, start, end, graph) {
@@ -56,34 +55,40 @@ export default class Dijkstra {
             }
 
             if (self.Q.length() > 0) {
+
+                // Getting the next undiscovered edge from self.Q
                 let u = null;
                 while (true) {
                     if (self.Q.length() > 0) {
+                        // Pop from the queue
                         const temp = self.Q.pop();
                         if (!self.graph.V[temp.data.dest].mark.discovered) {
+                            // If the destination on the popped edge is undiscovered,
+                            //      set u to temp, and break
                             u = temp;
                             break;
                         }
                     }
                     else {
-                        break;
+                        // If the queue is empty, there are no more vertices, return true
+                        return true;
                     }
                 }
-                
+
+                // Current distance to popped edge, and the edge itself
                 const distU = u.key;
                 const dataU = u.data;
 
+                // Destination vertex and source vertex
                 const dest = self.graph.V[dataU.dest];
                 const src  = self.graph.V[dataU.src ];
                 
+                // Mark the source as discovered, and add all it's neighbors
                 src.mark.discovered = true;
-
                 self.addNeighbors(dest, distU);
 
-                debugger;
-
                 const [ srcRow , srcCol  ] = src.mark.cordinate;
-                const [ destRow, destCol ] = dest.mark.cordinate;
+                const destRow  = dest.mark.cordinate[0];
 
                 const [ getter, gridGetter ] = destRow !== srcRow
                     // Case: the hop is vertical
@@ -93,27 +98,33 @@ export default class Dijkstra {
                     : [ (item) => item[1],
                         (offset, dir) => self.grid[srcRow][srcCol + (offset * dir)] ]
                 
+                // Absolute distance between the source / destination of the targeted edge
                 const hop = Math.abs(getter(dest.mark.cordinate) - getter(src.mark.cordinate));
 
+                // Direction (negative or positive) of the hop
                 const dir = getter(dest.mark.cordinate) > getter(src.mark.cordinate)
                     ? 1
                     : -1
                 ;;
 
+                // Add the neighbors cells in the targeted edge to the edgeStack
+                //      and set their states to HOLD (so they're blue)
                 range(1, hop + 1).forEach(offset => {
                     const cell = gridGetter(offset, dir);
                     self.edgeStack.push(cell);
                     cell.state = Cell.STATES.HOLD;
                 });
                 
+                // Next step is the first item in the edgeStack
                 chosen  = self.edgeStack.shift();
 
+                // Check if the chosen tile is the target, and return true if it is
                 const [ targetRow, targetCol ] = [ chosen.row, chosen.col ];
-
                 if (targetRow === endRow && targetCol === endCol) { 
                     return true;
                 }
 
+                // Exit
                 standardExit();
                 return false;
             }

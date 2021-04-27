@@ -1,6 +1,6 @@
-import { randRange, range, DIRECTIONS } from '../../../Globals';
+import { range, DIRECTIONS } from '../../../Globals';
 import { Cell } from '../../gridItem/Cell';
-import { Graph, Vertex } from './dataStructures/Graph.js';
+import { Graph } from './dataStructures/Graph.js';
 
 class CellMarker {
     constructor(cordinate, discovered) {
@@ -176,7 +176,6 @@ export default class GraphGenerator {
     generateGraph() {
         this.collectRowVertices();
         this.connectRows();
-        console.log(this.Graph);
         return this.Graph;
     }
 }
