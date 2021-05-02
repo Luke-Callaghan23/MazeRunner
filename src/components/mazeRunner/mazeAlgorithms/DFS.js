@@ -1,7 +1,10 @@
 import { randRange, range, DIRECTIONS } from '../../../Globals';
 import { Cell } from '../../gridItem/Cell';
+import AStar from './A*';
 
 export default class DFS {
+
+    static Name = 'DFS';
 
     static Directions = [ 
         [ 0, -1, DIRECTIONS.WEST  ], 
@@ -16,7 +19,9 @@ export default class DFS {
         this.end   = end;
         this.cur   = start;
         this.stack = [];
-        this.grid[this.cur[0]][start[1]].state = Cell.STATES.CURRENT;
+        this.grid[this.cur[0]][start[1]].state = Cell.STATES.DFS;
+        this.holding = [];
+        this.passed = [];
     }
 
     getFunctions() {
@@ -59,6 +64,7 @@ export default class DFS {
                             
                             potentials.push(potential);
                             potential.state = Cell.STATES.HOLD;
+                            self.holding.push([row + rowOff, col + colOff]);
                         }
                     }
                 }
@@ -66,7 +72,7 @@ export default class DFS {
             });
 
             // If the end was found, return true and end ticking
-            if (found) return true;
+            if (found) return null;
 
             if (potentials.length > 0) {
                 // Chose a random direction from the potential directions list, and splice
@@ -86,34 +92,68 @@ export default class DFS {
                 else {
                     // If there are no valid moves and no past moves in the stack,
                     //      there is no solution, stop ticking
-                    return true;
+                    return null;
                 }
             }
 
             // Set the status of the current cell to passed
             self.grid[row][col].state = Cell.STATES.PASSED;
-
+            self.passed.push([row, col]);
+            
+            // Remove the passed item from the holding array, if it is in there
+            const holdingIndex = self.holding.findIndex(([ row, col ]) => row === chosen.row && col === chosen.col);
+            if (holdingIndex !== -1) {
+                self.holding.splice(holdingIndex, 1);
+            }
+            
             // Finally, set the selected cell above to self.cur so that it
             //      is the next cell that will be evaluated
             self.cur = [ chosen.row, chosen.col ];
             chosen.state = Cell.STATES.CURRENT;
 
-            return false;
+
+
+            return self;
         };
 
         const reset = () => {
             self.cur = self.start;
             self.stack = [];
+            self.passed = [];
+            self.holding = [];
         }
 
-        const skip = () => {
-            let res = false;
-            while (!res) {
-                res = tick();
-            }
-        }
+        // const skip = () => {
+        //     // let res = false;
+        //     // while (!res) {
+        //     //     res = tick();
+        //     // }
+        // }
 
-        return [ tick, reset, skip ]
+        
+        // const switched = (current) => {
+        //     if (current !== DFS.Name) {
+        //         // Case: switching to the current this algorithm
+    
+        //         // Turn all holding and all passed to HOLD and PASSED
+        //         self.holding.forEach(item => item.state = Cell.STATES.HOLD);
+        //         self.passed.forEach(item => item.state = Cell.STATES.PASSED);
+        //     }
+        //     else {
+        //         // Case: switching away from this algorithm
+    
+        //         // Turn off everything in self.holding and self.passed
+        //         self.holding.forEach(item => item.state = Cell.STATES.OFF);
+        //         self.passed.forEach(item => item.state = Cell.STATES.OFF);
+        //     }
+        // }
+
+        return [
+            tick,
+            reset,
+            // skip,
+            // switched
+        ]
     }
 
 }

@@ -3,6 +3,9 @@ import { Cell } from '../../gridItem/Cell';
 import PriorityQueue from './dataStructures/PriorityQueue';
 
 export default class AStar {
+
+    static Name = 'AStar';
+
     constructor(grid, start, end, graph) {
         this.graph = graph;
         this.grid  = grid;
@@ -12,7 +15,9 @@ export default class AStar {
         this.Q     = new PriorityQueue();
         this.addNeighbors(this.start, 0);
         this.edgeStack = [];
-        this.grid[this.cur[0]][this.cur[1]].state = Cell.STATES.CURRENT;
+        this.grid[this.cur[0]][this.cur[1]].state = Cell.STATES.ASTAR;
+        this.holding = [];
+        this.passed = [];
     }
 
     addNeighbors(source, distSource) {
@@ -38,11 +43,18 @@ export default class AStar {
             const standardExit = () => {
                 // Set the status of the current cell to passed
                 self.grid[row][col].state = Cell.STATES.PASSED;
+                self.passed.push([row, col]);
 
                 // Finally, set the selected cell above to self.cur so that it
                 //      is the next cell that will be evaluated
                 self.cur = [ chosen.row, chosen.col ];
                 chosen.state = Cell.STATES.CURRENT;
+
+                // Remove the passed item from the holding array, if it is in there
+                const holdingIndex = self.holding.findIndex(([ row, col ]) => row === chosen.row && col === chosen.col);
+                if (holdingIndex !== -1) {
+                    self.holding.splice(holdingIndex, 1);
+                }
             }
 
 
@@ -51,7 +63,7 @@ export default class AStar {
                 //      and exit
                 chosen = self.edgeStack.shift();
                 standardExit();
-                return false;
+                return self;
             }
 
             if (self.Q.length() > 0) {
@@ -71,7 +83,7 @@ export default class AStar {
                     }
                     else {
                         // If the queue is empty, there are no more vertices, return true
-                        return true;
+                        return null;
                     }
                 }
 
@@ -88,7 +100,7 @@ export default class AStar {
                 self.addNeighbors(dest, (() => {
                     const [ endRow,  endCol  ] = self.end;
                     const [ destRow, destCol ] = dest.mark.cordinate;
-                    return distU + Math.sqrt(
+                    return distU * Math.sqrt(
                         Math.pow((endRow - destRow), 2) + 
                         Math.pow((endCol - destCol), 2)
                     )
@@ -121,6 +133,7 @@ export default class AStar {
                     const cell = gridGetter(offset, dir);
                     self.edgeStack.push(cell);
                     cell.state = Cell.STATES.HOLD;
+                    self.holding.push([cell.row, cell.col]);
                 });
                 
                 // Next step is the first item in the edgeStack
@@ -129,15 +142,15 @@ export default class AStar {
                 // Check if the chosen tile is the target, and return true if it is
                 const [ targetRow, targetCol ] = [ chosen.row, chosen.col ];
                 if (targetRow === endRow && targetCol === endCol) { 
-                    return true;
+                    return null;
                 }
 
                 // Exit
                 standardExit();
-                return false;
+                return self;
             }
             else {
-                return true;
+                return null;
             }
 
 
@@ -146,16 +159,41 @@ export default class AStar {
         const reset = () => {
             self.cur = [self.start.mark.cordinate.row, self.start.mark.cordinate.col];
             self.Q = new PriorityQueue();
+            self.passed = [];
+            self.holding = [];
         }
 
-        const skip = () => {
-            let res = false;
-            while (!res) {
-                res = tick();
-            }
-        }
+        // const skip = () => {
+        //     // let res = false;
+        //     // while (!res) {
+        //     //     res = tick();
+        //     // }
+        // }
 
-        return [ tick, reset, skip ]
+        
+        // const switched = (current) => {
+        //     if (current !== AStar.Name) {
+        //         // Case: switching to the current this algorithm
+    
+        //         // Turn all holding and all passed to HOLD and PASSED
+        //         self.holding.forEach(item => item.state = Cell.STATES.HOLD);
+        //         self.passed.forEach(item => item.state = Cell.STATES.PASSED);
+        //     }
+        //     else {
+        //         // Case: switching away from this algorithm
+    
+        //         // Turn off everything in self.holding and self.passed
+        //         self.holding.forEach(item => item.state = Cell.STATES.OFF);
+        //         self.passed.forEach(item => item.state = Cell.STATES.OFF);
+        //     }
+        // }
+
+        return [
+            tick,
+            reset,
+            // skip,
+            // switched
+        ]
     }
 
 }

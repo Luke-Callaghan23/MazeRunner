@@ -67,6 +67,8 @@ export default () => {
     const [ generated, setGenerated ] = useState(false);
     const [ mazeState, setMazeState ] = useState(MAZE_STATES.NOT_READY);
 
+    const [ selectedAlgorithm, setSelectedAlgorithm ] = useState('turnLeft');
+
     const [ grid, setGrid ] = useState(null);
     
     const numRowsRef = useRef(numRows);
@@ -159,15 +161,12 @@ export default () => {
                     }}>
                         <CardContent>
                             <MazeRunner 
+                                selectedAlgorithm={selectedAlgorithm}
                                 speedRef={speedRef}
                                 size={size}
-                                classes={classes}
                                 grid={grid}
-                                setGrid={setGrid}
                                 numRows={numRows}
                                 numCols={numCols}
-                                numRowsRef={numRowsRef}
-                                numColsRef={numColsRef}
                                 mazeState={mazeState}
                                 setMazeState={setMazeState}
                             />
@@ -187,6 +186,10 @@ export default () => {
 
                         <Options 
 
+                            selectedAlgorithm={selectedAlgorithm}
+                            setSelectedAlgorithm={setSelectedAlgorithm}
+
+                            mazeState={mazeState}
                             speed={speed}
                             setSpeed={(speed) => {
                                 speed = parseInt(speed);

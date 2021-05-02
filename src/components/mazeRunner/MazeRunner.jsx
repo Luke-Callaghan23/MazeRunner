@@ -18,15 +18,12 @@ import AStar from "./mazeAlgorithms/A*";
 import GraphGenerator from "./mazeAlgorithms/graphGenerator.js";
 
 export default ({
+    selectedAlgorithm,
     speedRef,
     size,
-    classes,
     grid, 
-    setGrid,
     numRows,
     numCols,
-    numRowsRef,
-    numColsRef,
     mazeState,
     setMazeState
 }) => {
@@ -36,12 +33,19 @@ export default ({
     const mazeStateRef = useRef(mazeState);
     mazeStateRef.current = mazeState;
     
+    const [ algorithmFunctions, setAlgorithmFunctions ] = useState(null);
+
     // Hacky way to re render without actually changing anything
     const reRender = useState(true)[1];
 
-    const tickFunction = useRef(null);
-    const resetFunction = useRef(null);
-    const skipFunction = useRef(null);
+    // 
+    const selectedAlgorithmRef = useRef('turnLeft');
+
+    // 
+    const tickFunction   = useRef(null);
+    const resetFunction  = useRef(null);
+    const skipFunction   = useRef(null);
+    const switchFunction = useRef(null);
     const tick = useCallback(() => {
         if (!runningRef.current) {
             return;
@@ -123,22 +127,188 @@ export default ({
                 grid[startRow][startCol]['cell'].state = Cell.STATES.CURRENT;
                 grid[endRow  ][endCol  ]['cell'].state = Cell.STATES.CURRENT;
 
+                // Generate a graph on the current maze
                 const graph = new GraphGenerator(grid, maze.start, maze.end).generateGraph();
 
+                // Finding the starting vertex of the maze (the vertex whose cordinate matches start row / col)
                 const start = graph.V.find(vertex => vertex.mark.cordinate[0] === startRow && vertex.mark.cordinate[1] === startCol);
 
-                [ tickFunction.current, resetFunction.current, skipFunction.current ] = new AStar (
-                    grid.map(row => (
-                        row.map(col => (
-                            col['cell']
-                        )
-                    ))),
-                    start,
-                    maze['end'],
-                    graph
-                ).getFunctions()
-
                 
+                // const cellGrid = grid.map(row => (
+                //     row.map(col => (
+                //         new Cell (
+                //             col['cell'].row, 
+                //             col['cell'].col, 
+                //             col['cell'].state
+                //         )
+                //     )
+                // )));
+                        
+                class AlgorithmTuple {
+                    constructor (functions, finished) {
+                        this.functions = functions;
+                        this.finished = finished;
+                    }
+                }
+
+                const algorithmTuples = {};
+
+                // Getting all the functions for all the maze-solving algorithms
+                {
+                    // Turn Left
+                    algorithmTuples['turnLeft'] = new AlgorithmTuple(new TurnLeft (
+                        grid.map(row => (
+                            row.map(col => (
+                                new Cell (
+                                    col['cell'].row, 
+                                    col['cell'].col, 
+                                    col['cell'].state,
+                                    col['cell'].borders.map(border => border),
+                                )
+                            )
+                        ))),
+                        maze.start, 
+                        maze.end
+                    ).getFunctions(), false);
+    
+                    // BFS
+                    algorithmTuples['BFS'] = new AlgorithmTuple(new BFS (
+                        grid.map(row => (
+                            row.map(col => (
+                                new Cell (
+                                    col['cell'].row, 
+                                    col['cell'].col, 
+                                    col['cell'].state,
+                                    col['cell'].borders.map(border => border),
+                                )
+                            )
+                        ))),
+                        maze.start, 
+                        maze.end
+                    ).getFunctions(), false);
+    
+                    // DFS
+                    algorithmTuples['DFS'] = new AlgorithmTuple(new DFS (
+                        grid.map(row => (
+                            row.map(col => (
+                                new Cell (
+                                    col['cell'].row, 
+                                    col['cell'].col, 
+                                    col['cell'].state,
+                                    col['cell'].borders.map(border => border),
+                                )
+                            )
+                        ))),
+                        maze.start, 
+                        maze.end
+                    ).getFunctions(), false);
+    
+                    // dijkstra
+                    algorithmTuples['dijkstra'] = new AlgorithmTuple(new Dijkstra (
+                        grid.map(row => (
+                            row.map(col => (
+                                new Cell (
+                                    col['cell'].row, 
+                                    col['cell'].col, 
+                                    col['cell'].state,
+                                    col['cell'].borders.map(border => border),
+                                )
+                            )
+                        ))),
+                        start,
+                        maze['end'],
+                        graph
+                    ).getFunctions(), false);
+    
+                    // A*
+                    algorithmTuples['AStar'] = new AlgorithmTuple(new AStar (
+                        grid.map(row => (
+                            row.map(col => (
+                                new Cell (
+                                    col['cell'].row, 
+                                    col['cell'].col, 
+                                    col['cell'].state,
+                                    col['cell'].borders.map(border => border),
+                                )
+                            )
+                        ))),
+                        start,
+                        maze['end'],
+                        graph
+                    ).getFunctions(), false);
+                }
+                setAlgorithmFunctions(algorithmTuples);
+
+                // Setting the tick function
+                tickFunction.current = () => {
+                    
+                    // Turn off all cells in the main grid
+                    grid.forEach(row => {
+                        row.forEach(col => {
+                            col['cell'].state = Cell.STATES.OFF;
+                        });
+                    });
+
+                    grid[startRow][startCol]['cell'].state = Cell.STATES.CURRENT;
+                    grid[endRow  ][endCol  ]['cell'].state = Cell.STATES.CURRENT;
+                    
+                    const currents = [];
+
+                    let finished = true;
+                    // Call the tick functions (the first functions of each algorithm)
+                    //      for each algorithm
+                    Object.getOwnPropertyNames(algorithmTuples).forEach((algorithm, index) => {
+                        const result = (
+                            !algorithmTuples[algorithm].finished && 
+                            algorithmTuples[algorithm].functions[0]()
+                        );
+
+                        if (result) {
+                            finished = false;
+
+                            currents.push([ result.cur, Cell.STATES.TURNLEFT + index]);
+
+                            if (algorithm === selectedAlgorithmRef.current) {
+                                const passed = result.passed || [];
+                                const holding = result.holding || [];
+
+                                passed.forEach(([ row, col ]) => {
+                                    grid[row][col]['cell'].state = Cell.STATES.PASSED;
+                                });
+                                holding.forEach(([ row, col ]) => {
+                                    grid[row][col]['cell'].state = Cell.STATES.HOLD;
+                                });
+                            }
+                        }
+
+                        currents.forEach(([ [ row, col ], state]) => {
+                            grid[row][col]['cell'].state = state;
+                        });
+
+                    });
+
+                    return finished;
+                }
+
+                // Reset function just calls the second function (the reset function) for each
+                //      algorithm in the algorithmTuples object, then re render
+                resetFunction.current = () => {
+                    Object.getOwnPropertyNames(algorithmTuples).forEach(algorithm => {
+                        algorithmTuples[algorithm].functions[1]();
+                    });
+                    reRender(render => !render);
+                }
+
+                // Skip function just calls the current tickFunction until it returns
+                //      finished = true, then re render
+                skipFunction.current = () => {
+                    let finished = false;
+                    while (!finished) {
+                        finished = tickFunction.current();
+                    }
+                    reRender(render => !render);
+                }
+
                 // Re render the new colors and reset the tick function
                 reRender(render => !render);
 
@@ -151,6 +321,23 @@ export default ({
         }
 
     }, [ mazeState ]);
+
+    useEffect(() => {
+        if (algorithmFunctions) {
+            selectedAlgorithmRef.current = selectedAlgorithm;
+    
+            switchFunction.current(selectedAlgorithm);
+    
+            // Set all the other current functions to indeces 1.. of the 
+            //      selected algorithm's functions
+            resetFunction.current  = algorithmFunctions[ selectedAlgorithm ][1];
+            skipFunction.current   = algorithmFunctions[ selectedAlgorithm ][2];
+            switchFunction.current = algorithmFunctions[ selectedAlgorithm ][3];
+    
+            algorithmFunctions[selectedAlgorithm][3](selectedAlgorithm);
+        }
+
+    }, [ selectedAlgorithm ]);
 
     // Getting the prompt to be displayed, based on the state of the maze
     const promptMap = {
@@ -280,7 +467,6 @@ export default ({
     return (
     grid !== null && 
     <>
-    
         <Typography 
             component="h2"
             align="center"

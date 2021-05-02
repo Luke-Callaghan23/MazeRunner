@@ -8,9 +8,10 @@ import TextField from '@material-ui/core/TextField';
 import Box from "@material-ui/core/Box";
 import { Icon, Modal } from 'semantic-ui-react'
 import { Button as ModalButton } from 'semantic-ui-react'
-import { shake } from 'Globals';
+import { MAZE_STATES, shake } from 'Globals';
 import { Typography } from '@material-ui/core';
 import Slider from '@material-ui/core/Slider';
+import Selector from './SolverSelector';
 const styledBy = (property, mapping) => (props) => mapping[props[property]];
 
 const styles = {
@@ -53,12 +54,15 @@ const useStyles = makeStyles((theme) => ({
         width: 300 + theme.spacing(3) * 2,
     },
     margin: {
-        height: theme.spacing(3),
+        // height: theme.spacing(1),
     },
 }));
     
     
 export default function DynamicCSS({ 
+    selectedAlgorithm,
+    setSelectedAlgorithm,
+    mazeState,
     setNumRows,
     setNumCols,
     generated,
@@ -206,27 +210,45 @@ export default function DynamicCSS({
 
             {
                 generated && 
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                >
-                    <div style={{width:'80%'}}>
-                        <div className={classes.margin} />
-                        <Typography gutterBottom variant="h4">Speed</Typography>
-                        <PrettoSlider 
-                            valueLabelDisplay="auto" 
-                            aria-label="pretto slider" 
-                            defaultValue={speed}
-                            ref={sliderRef}
-                            onChangeCommitted={() => {
-                                setSpeed(sliderRef.current.children[2].value);
+                <>
+                    <Box
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <div style={{width:'80%'}}>
+                            <div className={classes.margin} />
+                            <Typography gutterBottom variant="h4">Speed</Typography>
+                            <PrettoSlider 
+                                valueLabelDisplay="auto" 
+                                aria-label="pretto slider" 
+                                defaultValue={speed}
+                                ref={sliderRef}
+                                onChangeCommitted={() => {
+                                    setSpeed(sliderRef.current.children[2].value);
+                                }}
+                                // onChange={(event) => setSpeed(event.target.value)} 
+                            />
+                            <div className={classes.margin} />
+                        </div>
+                    </Box>
+                    {
+                        mazeState > MAZE_STATES.GENERATING &&
+                        <Box
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            style={{
+                                marginBottom: 10,
                             }}
-                            // onChange={(event) => setSpeed(event.target.value)} 
-                        />
-                        <div className={classes.margin} />
-                    </div>
-                </Box>
+                        >
+                            <Selector 
+                                selectedAlgorithm={selectedAlgorithm}
+                                setSelectedAlgorithm={setSelectedAlgorithm}
+                            />
+                        </Box>
+                    }
+                </>
             }
 
             <div style={{width: '100%'}}>
@@ -260,9 +282,8 @@ export default function DynamicCSS({
                             value={proxyCols}
                         />
                     </form>
-
                 </Box>
-
+                
                 {/*    
                 
                     Generate Maze button

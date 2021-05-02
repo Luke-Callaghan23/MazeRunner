@@ -3,6 +3,8 @@ import { Cell } from '../../gridItem/Cell';
 
 export default class BFS {
 
+    static Name = 'BFS';
+
     static DirectionOrder = [ 
         [ 0, -1, DIRECTIONS.WEST  ], 
         [ -1, 0, DIRECTIONS.NORTH ], 
@@ -16,7 +18,9 @@ export default class BFS {
         this.end   = end;
         this.cur   = start;
         this.Q = [];
-        this.grid[this.cur[0]][start[1]].state = Cell.STATES.CURRENT;
+        this.grid[this.cur[0]][start[1]].state = Cell.STATES.BFS;
+        this.holding = [];
+        this.passed = [];
     }
 
     getFunctions() {
@@ -33,7 +37,7 @@ export default class BFS {
             let found = false;
             
             // If the end was found, return true and end ticking
-            if (found) return true;
+            if (found) return null;
 
             if (self.Q.length > 0) {
                 // If there are no valid moves next to current, pop from the 
@@ -75,6 +79,7 @@ export default class BFS {
                                 //      and set its state to HOLD
                                 self.Q.push(potential);
                                 potential.state = Cell.STATES.HOLD;
+                                self.holding.push([row + rowOff, col + colOff]);
                             }
                         }
                     }
@@ -82,36 +87,67 @@ export default class BFS {
 
             })
 
-            if (found) return true;
+            if (found) return null;
 
             if (chosen === null) {
-                return false;
+                return self;
             }
 
             // Set the status of the current cell to passed
             self.grid[row][col].state = Cell.STATES.PASSED;
+            self.passed.push([row, col]);
+
+            // Remove the passed item from the holding array, if it is in there
+            const holdingIndex = self.holding.findIndex(([ row, col ]) => row === chosen.row && col === chosen.col);
+            if (holdingIndex !== -1) {
+                self.holding.splice(holdingIndex, 1);
+            }
 
             // Finally, set the selected cell above to self.cur so that it
             //      is the next cell that will be evaluated
             self.cur = [ chosen.row, chosen.col ];
             chosen.state = Cell.STATES.CURRENT;
 
-            return false;
+            return self;
         };
 
         const reset = () => {
             self.cur = self.start;
             self.Q = [];
+            self.passed = [];
+            self.holding = [];
         }
 
-        const skip = () => {
-            let res = false;
-            while (!res) {
-                res = tick();
-            }
-        }
+        // const skip = () => {
+        //     // let res = false;
+        //     // while (!res) {
+        //     //     res = tick();
+        //     // }
+        // }
 
-        return [ tick, reset, skip ]
+        // const switched = (current) => {
+        //     if (current !== BFS.Name) {
+        //         // Case: switching to the current this algorithm
+    
+        //         // Turn all holding and all passed to HOLD and PASSED
+        //         self.holding.forEach(item => item.state = Cell.STATES.HOLD);
+        //         self.passed.forEach(item => item.state = Cell.STATES.PASSED);
+        //     }
+        //     else {
+        //         // Case: switching away from this algorithm
+    
+        //         // Turn off everything in self.holding and self.passed
+        //         self.holding.forEach(item => item.state = Cell.STATES.OFF);
+        //         self.passed.forEach(item => item.state = Cell.STATES.OFF);
+        //     }
+        // }
+
+        return [
+            tick,
+            reset,
+            // skip,
+            // switched
+        ]
     }
 
 }

@@ -3,12 +3,14 @@ import React from 'react';
 
 import { DIRECTIONS } from '../../Globals.js';
 import './grid-style.css';
+import { green, blue, pink, red, orange } from '@material-ui/core/colors';
+
 class Cell {
-    constructor(row, col, state) {
+    constructor(row, col, state, borders=null) {
         this.row = row;
         this.col = col;
         this.state = state;
-        this.borders = [
+        this.borders = borders || [
             true, true, 
             true, true,
         ];
@@ -23,7 +25,12 @@ Cell.STATES = {
     PASSED: 3,
     HOLD: 4,
     VERTEX: 5, 
-    EDGE: 6
+    EDGE: 6,
+    TURNLEFT: 7,
+    BFS: 8,
+    DFS: 9,
+    DIJKSTRA: 10,
+    ASTAR: 11,
 }
 
 Cell.StateColorMap = {
@@ -33,7 +40,12 @@ Cell.StateColorMap = {
     [Cell.STATES.PASSED]: '#bb0000',
     [Cell.STATES.HOLD]: 'blue',
     [Cell.STATES.VERTEX]: '#fff200',
-    [Cell.STATES.EDGE]: '#ffae00'
+    [Cell.STATES.EDGE]: '#ffae00',
+    [Cell.STATES.TURNLEFT]: green[400],
+    [Cell.STATES.BFS]: blue[400],
+    [Cell.STATES.DFS]: pink[400],
+    [Cell.STATES.DIJKSTRA]: red[400],
+    [Cell.STATES.ASTAR]: orange[400],
 };
 
 
